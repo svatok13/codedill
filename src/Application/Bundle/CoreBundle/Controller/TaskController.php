@@ -237,7 +237,7 @@ class TaskController extends Controller
      *
      * @Method({"GET"})
      */
-    public function checkIfUserSolutionForTaskExistsAction($user, $task)
+    public function checkIfUserSolutionForTaskExists($user, $task)
     {
         $solutionRepository = $this->getDoctrine()->getRepository('ApplicationCoreBundle:Solution');
         $result = $solutionRepository->getSolutionByUserAndTask($task, $user);
