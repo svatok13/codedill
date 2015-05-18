@@ -77,7 +77,8 @@
         "friendsofsymfony/comment-bundle": "2.0.6",
         "norzechowicz/aceeditor-bundle": "0.1.*",
         "sonata-project/doctrine-orm-admin-bundle": "2.2.6",
-        "sonata-project/core-bundle": "~2.2"
+        "sonata-project/core-bundle": "~2.2",
+        "guzzlehttp/guzzle": "~5.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3",

@@ -13,8 +13,9 @@ namespace Application\Bundle\UserBundle\Security\Provider;
 use Application\Bundle\UserBundle\Entity\User;
 use FOS\UserBundle\Model\UserManagerInterface;
 use HWI\Bundle\OAuthBundle\OAuth\Response\UserResponseInterface;
+use HWI\Bundle\OAuthBundle\OAuth\ResourceOwner\GitHubResourceOwner;
+use HWI\Bundle\OAuthBundle\OAuth\ResourceOwner\BitbucketResourceOwner;
 use HWI\Bundle\OAuthBundle\Security\Core\User\FOSUBUserProvider as BaseProvider;
-
 /**
  * Class AuthProvider
  */
@@ -32,6 +33,11 @@ class AuthProvider extends BaseProvider
         2345473, // Vadim
         5329546, // Sasha
     ];
+
+    /**
+     * @var array $adminBitBucketIds Admin BitBucket IDs
+     */
+    private $adminBitBucketIds = [];
 
     /**
      * @var UserManagerInterface
@@ -53,41 +59,87 @@ class AuthProvider extends BaseProvider
      */
     public function loadUserByOAuthUserResponse(UserResponseInterface $response)
     {
-        $user = $this->userManager->findUserBy([
-            'githubId' => $response->getUsername()
-        ]);
+        $user = null;
+
+        $resourceOwner = $response->getResourceOwner();
+        if ($resourceOwner instanceof GitHubResourceOwner) {
+            $user = $this->userManager->findUserBy(['githubId' => $response->getUsername()]);
+        } elseif ($resourceOwner instanceof BitbucketResourceOwner) {
+            $user = $this->userManager->findUserBy(['bitbucketId' => $response->getUsername()]);
+        }
 
         if ($user instanceof User) {
             return $user;
         }
 
         // Try to create user
-        $user = $this->createUserFromResponse($response);
+        if ($resourceOwner instanceof GitHubResourceOwner) {
+            $user = $this->createUserFromGitHubResponse($response);
+        } elseif ($resourceOwner instanceof BitbucketResourceOwner) {
+            $user = $this->createUserFromBitBucketResponse($response);
+        }
 
         return $user;
     }
 
     /**
-     * Create user from response
+     * Create user from Github response
      *
      * @param UserResponseInterface $response
      *
      * @return User
      */
-    private function createUserFromResponse(UserResponseInterface $response)
+    private function createUserFromGitHubResponse(UserResponseInterface $response)
     {
         $email = $response->getEmail() ?: $response->getUsername() . '@example.com';
 
         /** @var User $user */
-        $user = $this->userManager->createUser();
-        $user->setEmail($email);
-        $user->setUsername($response->getNickname());
-        $user->setEnabled(true);
-        $user->setPlainPassword(uniqid());
-        $user->setGithubId($response->getUsername());
-
+        $user = $this->userManager->findUserByEmail($response->getEmail());
+        if ($user instanceof User) {
+            $user->setGithubId($response->getUsername());
+        } else {
+            $user = $this->userManager->createUser();
+            $user->setEmail($email);
+            $user->setUsername($email);
+            $user->setEnabled(true);
+            $user->setPlainPassword(uniqid());
+            $user->setGithubId($response->getUsername());
+        }
         // Move to separate listener
         if (in_array($response->getUsername(), $this->adminGitHubIds)) {
+            $user->addRole('ROLE_ADMIN');
+        }
+
+        $this->userManager->updateUser($user);
+
+        return $user;
+    }
+
+    /**
+     * Create user from Bitbucket response
+     *
+     * @param UserResponseInterface $response
+     *
+     * @return User
+     */
+    private function createUserFromBitBucketResponse(UserResponseInterface $response)
+    {
+        $email = $response->getEmail() ?: $response->getUsername() . '@bitbucket.com';
+
+        /** @var User $user */
+        $user = $this->userManager->findUserByEmail($response->getEmail());
+        if ($user instanceof User) {
+            $user->setBitbucketId($response->getUsername());
+        } else {
+            $user = $this->userManager->createUser();
+            $user->setEmail($email);
+            $user->setUsername($email);
+            $user->setEnabled(true);
+            $user->setPlainPassword(uniqid());
+            $user->setBitbucketId($response->getUsername());
+        }
+        // Move to separate listener
+        if (in_array($response->getUsername(), $this->adminBitBucketIds)) {
             $user->addRole('ROLE_ADMIN');
         }
 

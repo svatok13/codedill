@@ -8,6 +8,10 @@ hwi_oauth:
             client_id:           %github_client_id%
             client_secret:       %github_client_secret%
             scope:               "user:email"
+        bitbucket:
+            type:                bitbucket
+            client_id:           %bitbucket_client_id%
+            client_secret:       %bitbucket_client_secret%
     fosub:
         # try 30 times to check if a username is available (foo, foo1, foo2 etc)
         username_iterations: 30
@@ -15,3 +19,4 @@ hwi_oauth:
         # mapping between resource owners (see below) and properties
         properties:
             github: githubId
+            bitbucket: bitbucketId

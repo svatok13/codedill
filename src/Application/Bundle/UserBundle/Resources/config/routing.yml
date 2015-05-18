@@ -14,6 +14,9 @@ hwi_oauth_connect:
 hwi_github_login:
     pattern: /auth/check-github
 
+hwi_bitbucket_login:
+    pattern: /auth/check-bitbucket
+
 #FOSUserBundle
 fos_user_security_logout:
     path: /logout

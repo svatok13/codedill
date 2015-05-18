@@ -24,3 +24,6 @@ parameters:
 
     github_client_id:       SET_YOUR_CLIENT_GITHUB_ID
     github_client_secret:   SET_YOUR_GITHUB_CLIENT_SECRET
+
+    bitbucket_client_id:       SET_YOUR_CLIENT_BITBUCKET_ID
+    bitbucket_client_secret:   SET_YOUR_BITBUCKET_CLIENT_SECRET

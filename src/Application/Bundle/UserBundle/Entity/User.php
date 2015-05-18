@@ -33,9 +33,16 @@ class User extends BaseUser
     /**
      * @var string $githubId Github user ID
      *
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $githubId;
+
+    /**
+     * @var string $bitbucketId Bitbucket user ID
+     *
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $bitbucketId;
 
     /**
      * Get ID
@@ -66,4 +73,29 @@ class User extends BaseUser
     {
         $this->githubId = $githubId;
     }
+
+    /**
+     * Get bitbucketId
+     *
+     * @return string BitbucketId
+     */
+    public function getBitbucketId()
+    {
+        return $this->bitbucketId;
+    }
+
+    /**
+     * Set bitbucketId
+     *
+     * @param string $bitbucketId bitbucketId
+     *
+     * @return $this
+     */
+    public function setBitbucketId($bitbucketId)
+    {
+        $this->bitbucketId = $bitbucketId;
+
+        return $this;
+    }
+
 }
